@@ -221,7 +221,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Camera_controller.cs" />
+    <Compile Include="Assets\Enemy_info.cs" />
+    <Compile Include="Assets\Object_info.cs" />
+    <Compile Include="Assets\Open_fire.cs" />
     <Compile Include="Assets\Soldier_controller.cs" />
+    <Compile Include="Assets\Soldier_info.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
