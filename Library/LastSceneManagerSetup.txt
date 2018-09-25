@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Soldier_Player.unity
+- path: Assets/Fortress/_Scenes/Fortress.unity
   isLoaded: 1
   isActive: 1
