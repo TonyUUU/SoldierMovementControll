@@ -18,4 +18,13 @@ public class Enemy_info : MonoBehaviour {
 			Destroy(exp, 4);
 		}
 	}
+
+	void gotHit(int damage){
+		status.healthPoint -= damage;
+		if (status.healthPoint < 0) {
+			status.healthPoint = 0;
+		}
+
+		Debug.Log(string.Format("Soldier Got a shot! MEDIC!. Damage Value {0}, Current HP{1}", damage, status.healthPoint));
+	}
 }

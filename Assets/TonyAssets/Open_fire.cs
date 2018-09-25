@@ -19,9 +19,9 @@ public class Open_fire : MonoBehaviour {
             Debug.Log("Fire!");
             if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitedObj, firingRange))
             {
-                Debug.Log("Hit the target!");
-                if (hitedObj.collider.tag != "Unbreakable")
+				if (hitedObj.collider.tag == "Damageable" || hitedObj.collider.tag == "Player" )
                 {
+					Debug.Log("Hit the target!");
                     Enemy_info target_info = hitedObj.transform.GetComponent<Enemy_info>();
                     target_info.status.getHit(damage);
                 }

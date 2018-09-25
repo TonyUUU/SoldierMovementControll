@@ -21,4 +21,13 @@ public class missileExplosion : MonoBehaviour {
         Destroy(this.gameObject);
 		Destroy(exp, 3);
     }
+
+	void OnCollisionEnter(Collision c)
+	{
+		var other = c.gameObject;
+		if (other.CompareTag("Player") || other.CompareTag("Damageable"))
+		{
+			other.SendMessage ("gotHit", 100);
+		}
+	}
 }
