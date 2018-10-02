@@ -18,6 +18,7 @@ public struct SoldierState {
 [PacketStruct(MessageType.GOT_HIT)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct HIT {
+    public SegmentHeader seghead;
     public int NetID;
     public int Damage;
 }

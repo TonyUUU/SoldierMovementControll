@@ -22,7 +22,7 @@ namespace BarbaricCode
 
             public delegate void NetworkEventHandler(int connectionID, byte[] buffer, int recievedSize);
             public delegate void SegmentHandler(int nodeID, int connectionID, byte[] buffer, int recievedSize);
-            
+
             public static ConnectionConfig cconfig;
             public static HostTopology topology;
 
@@ -45,6 +45,7 @@ namespace BarbaricCode
             static byte[] buffer = new byte[NetworkMessage.MaxMessageSize];
             public static Dictionary<NetworkEventType, NetworkEventHandler> evtTypeHandlers = new Dictionary<NetworkEventType, NetworkEventHandler>();
             public static Dictionary<MessageType, SegmentHandler> segmentHandlers = new Dictionary<MessageType, SegmentHandler>();
+            public static Dictionary<NetEngineEvent, List<SegmentHandler>> netEngineEvtHandlers = new Dictionary<NetEngineEvent, List<SegmentHandler>>();
 
             public static Dictionary<int, GameObject> SpawnablePrefabs = new Dictionary<int, GameObject>();
 
@@ -100,7 +101,8 @@ namespace BarbaricCode
                     }
                 }
             }
-            // to be called in fixed delta time
+            // to be called in fixed delta time or in separate thread.
+            // will require some queueing mechanism for thread asynch
             public static void Step() {
                 int hostID, connectionID, channelID, recievedSize;
                 byte error;
@@ -204,6 +206,33 @@ namespace BarbaricCode
                     }
                 }
             }
+
+            public static void BroadcastTCP(byte[] data, int size) {
+                foreach (Connection conn in Connections.Values) {
+                    conn.QSendTCP(data, size);
+                }
+            }
+            public static void BroadcastUDP(byte[] data, int size) {
+                foreach (Connection conn in Connections.Values) {
+                    conn.QSendUDP(data, size);
+                }
+            }
+            public static void SendTCP(byte[] data, int size, int connection) {
+                if (!Connections.ContainsKey(connection))
+                {
+                    Debug.LogWarning("Trying to send to non-existent conenction");
+                    return;
+                }
+                Connections[connection].QSendTCP(data, size);
+            }
+            public static void SendUDP(byte[] data, int size, int connection) {
+                if (!Connections.ContainsKey(connection)) {
+                    Debug.LogWarning("Trying to send to non-existent conenction");
+                    return;
+                }
+                Connections[connection].QSendUDP(data, size);
+            }
+
         }
     }
 }

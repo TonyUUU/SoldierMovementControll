@@ -9,6 +9,22 @@ using UnityEngine;
 
 namespace BarbaricCode {
     namespace Networking {
+
+        public class HandlerClass : Attribute { }
+
+        public class NetEngineHandler : Attribute {
+            public NetEngineEvent type;
+            public NetEngineHandler(NetEngineEvent type)
+            {
+                this.type = type;
+            }
+        }
+
+        public enum NetEngineEvent
+        {
+            NewConnection,
+        }
+
         public class NetHandle : Attribute
         {
             public NetworkEventType NetType;
@@ -113,6 +129,11 @@ namespace BarbaricCode {
                     Debug.Log("Set NodeID To: " + NetEngine.NodeId);
                     // @FLAG SET
                     NetEngine.State = EngineState.CONNECTED;
+
+                    foreach (NetEngine.SegmentHandler handler in NetEngine.netEngineEvtHandlers[NetEngineEvent.NewConnection]) {
+                        handler.Invoke(nodeID, connectionID, buffer, recieveSize);
+                    }
+
                 }
                 else {
                     if (NetEngine.NodeId != 0)
@@ -183,7 +204,6 @@ namespace BarbaricCode {
                 }
                 NetEngine.NetworkObjects[sdm.NetID].Synchronize(buffer);
             }
-
         }
     }
 }

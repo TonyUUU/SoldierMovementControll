@@ -9,8 +9,13 @@ namespace BarbaricCode
 {
     namespace Networking
     {
+        // tells the netengine to iterate through this class to grab handlers
+        [HandlerClass]
         public static partial class Handlers
         {
+
+            // Segment Handlers
+
             // in order for your handler to get registered
             // it must have this attribute
             // [SegHandle(type of message)]
@@ -22,6 +27,21 @@ namespace BarbaricCode
             {
                 HIT hit = NetworkSerializer.ByteArrayToStructure<HIT>(buffer);
                 NetEngine.NetworkObjects[hit.NetID].gameObject.GetComponent<Damageable>().getHit(hit.Damage);
+            }
+
+            // Network Handlers
+            // User space custom handlers
+            [NetEngineHandler(NetEngineEvent.NewConnection)]
+            public static void OnPlayerConnected(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+                // enable the ui
+                // do other things
+                // asdf
+
+                // rq spawn command
+                // how to do loading/unloading of levels?
+
+
+
             }
         }
     }

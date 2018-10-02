@@ -13,13 +13,13 @@ public class Enemy : MonoBehaviour
     NavMeshAgent navMeshAgent;
 	private bool displayText = false;
     void Start()
-	{
-		navMeshAgent = GetComponent<NavMeshAgent> ();
-		navMeshAgent.autoBraking = false;
-		navMeshAgent.updatePosition = true;
-		navMeshAgent.updateRotation = true;
-		SetNextDestination ();
-	}
+    {
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.autoBraking = false;
+        navMeshAgent.updatePosition = true;
+        navMeshAgent.updateRotation = true;
+        SetNextDestination();
+    }
 
     void Update()
     {
