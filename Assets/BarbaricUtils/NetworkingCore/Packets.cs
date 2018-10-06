@@ -82,6 +82,13 @@ namespace BarbaricCode {
             public Quaternion Rotation; // find a way to marry this with state
         }
 
+		[PacketStruct(MessageType.FLOW_CONTROL)]
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		public struct FlowMessage {
+			public SegmentHeader SegHead;
+			public int Message;
+		}
+
         public enum MessageType {
             ESTABLISH_CONNECTION,
             STATE_DATA,
@@ -91,6 +98,8 @@ namespace BarbaricCode {
             // state
             SIMPLE_STATE,
             SOLDIER_STATE,
+			// Flow control
+			FLOW_CONTROL,
             // message
             GOT_HIT,
 

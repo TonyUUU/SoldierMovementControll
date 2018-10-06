@@ -83,6 +83,11 @@ namespace BarbaricCode
 					MenuContextController.instance.CreateAlert ("Failed to connect: Timeout", MainMenuContextController.instance.gameObject);
 				}
 			}
+
+			[NetEngineHandler(NetEngineEvent.FlowControl)]
+			public static void FlowControl(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+				
+			}
         }
     }
 }

@@ -27,7 +27,8 @@ namespace BarbaricCode {
             Hosted,
             HostFailed,
             HostDisconnect,
-			Timeout
+			Timeout,
+			FlowControl
         }
 
         public class NetHandle : Attribute
