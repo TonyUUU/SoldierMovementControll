@@ -46,6 +46,7 @@ namespace BarbaricCode
             public static Dictionary<NetworkEventType, NetworkEventHandler> evtTypeHandlers = new Dictionary<NetworkEventType, NetworkEventHandler>();
             public static Dictionary<MessageType, SegmentHandler> segmentHandlers = new Dictionary<MessageType, SegmentHandler>();
             public static Dictionary<NetEngineEvent, List<SegmentHandler>> netEngineEvtHandlers = new Dictionary<NetEngineEvent, List<SegmentHandler>>();
+			public static Dictionary<NetworkError, NetworkEventHandler> errorHandlers = new Dictionary<NetworkError, NetworkEventHandler> ();
 
             public static Dictionary<int, GameObject> SpawnablePrefabs = new Dictionary<int, GameObject>();
 
@@ -85,6 +86,13 @@ namespace BarbaricCode
                         netEngineEvtHandlers[handler.type].Add(segHandler);
                     }
                 }
+				meths = typeof(Handlers).GetMethods().Where(meth => Attribute.IsDefined(meth, typeof(ErrorHandle)));
+				foreach (System.Reflection.MethodInfo method in meths)
+				{
+					ErrorHandle handler = method.GetCustomAttributes(typeof(ErrorHandle), true).First() as ErrorHandle;
+					NetworkEventHandler nethandle = (NetworkEventHandler)Delegate.CreateDelegate(typeof(NetworkEventHandler), method);
+					errorHandlers.Add(handler.type, nethandle);
+				}
                 // Need to handle more meths here
 
             }
@@ -125,7 +133,12 @@ namespace BarbaricCode
                 NetworkEventType net;
                 while ((net = NetworkTransport.Receive(out hostID, out connectionID, out channelID, buffer, NetworkMessage.MaxMessageSize, out recievedSize, out error))!=NetworkEventType.Nothing) {
                     if ((NetworkError)error != NetworkError.Ok) {
-                        Debug.LogError("Failed to recieve: " + ((NetworkError)error).ToString());
+						Debug.LogWarning("Failed to recieve: " + ((NetworkError)error).ToString());
+						if (errorHandlers.ContainsKey ((NetworkError)error)) {
+							errorHandlers [(NetworkError)error].Invoke (connectionID, buffer, recievedSize);
+						} else {
+							Debug.LogError ("Unhandled Exception");
+						}
                         continue;
                     }
                     if (evtTypeHandlers.ContainsKey(net))
@@ -197,8 +210,11 @@ namespace BarbaricCode
             }
             public static void Disconnect(int connectionID) {
                 
-                // @TODO this func
+                // @TODO this func but better
                 byte error;
+				if(!Connections.ContainsKey(connectionID)) {
+					return;
+				}
                 NetworkTransport.Disconnect(SocketID, connectionID, out error);
                 Connections.Remove(connectionID);
                 if ((NetworkError)error != NetworkError.Ok) {

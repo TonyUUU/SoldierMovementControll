@@ -4,16 +4,24 @@ using UnityEngine;
 using UnityEngine.UI;
 using BarbaricCode.Networking;
 
-
 public class LobbyMenuContextController : MonoBehaviour {
     // yeah some sort of data structure
 
+	public GameObject PlayButton;
+	public string sceneName;
+
+	void OnEnable() {
+		PlayButton.SetActive (NetEngine.IsServer);
+	}
+
     public void DisconnectClicked() {
         NetEngine.CloseSocket();
-        MenuContextController.instance.SwitchToMainMenu();
+		MenuContextController.instance.SwitchToMainMenu();
     }
 
     public void PlayClicked() {
-
+		if (NetEngine.IsServer) {
+			// send play message
+		}
     }
 }

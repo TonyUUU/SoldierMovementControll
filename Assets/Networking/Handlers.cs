@@ -57,6 +57,32 @@ namespace BarbaricCode
 
             }
 
+			[NetEngineHandler(NetEngineEvent.Timeout)]
+			public static void OnTimeout(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+				/*
+				 * If we are the client ->
+				 * 		-> Trying to connect in menu
+				 * 			-> Send a notify to menu and let them handle it
+				 * 		-> We are in game
+				 * 			-> Temporary just disconnect and back to main menu
+				 * 			-> Try reconnecting, (this is hard)
+				 *		-> Lobby
+				 *			-> Temporary disconnet & back to main menu
+				 * If we are the host ->
+				 * 		-> We are in game
+				 * 			-> Client disconnects, maybe delete their object for now (temp)
+				 * 		-> Lobby
+				 * 			-> Disconnect that person
+				*/
+
+				if (!NetEngine.IsServer) {
+					// client code
+
+					// Assume we are in the menu for now
+					MainMenuContextController.instance.RemoveMask();
+					MenuContextController.instance.CreateAlert ("Failed to connect: Timeout", MainMenuContextController.instance.gameObject);
+				}
+			}
         }
     }
 }

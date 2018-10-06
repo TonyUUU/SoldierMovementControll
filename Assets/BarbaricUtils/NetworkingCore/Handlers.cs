@@ -27,6 +27,7 @@ namespace BarbaricCode {
             Hosted,
             HostFailed,
             HostDisconnect,
+			Timeout
         }
 
         public class NetHandle : Attribute
@@ -43,6 +44,13 @@ namespace BarbaricCode {
                 this.type = type;
             }
         }
+
+		public class ErrorHandle: Attribute {
+			public NetworkError type;
+			public ErrorHandle(NetworkError type) {
+				this.type = type;
+			}
+		}
 
         public static partial class Handlers {
             // NetworkEventHandlers
@@ -115,6 +123,13 @@ namespace BarbaricCode {
                     Debug.LogWarning("Disconnection connectionID: " + connectionID + " does not exist");
                 }
             }
+
+			// Network error handlers
+			[ErrorHandle(NetworkError.Timeout)]
+			public static void HandleTimeout(int connectionID, byte[] buffer, int recievedSize) {
+				NetEngine.NotifyListeners (NetEngineEvent.Timeout, 0, connectionID, buffer, recievedSize);
+				NetEngine.Disconnect (connectionID);
+			}
 
             // NetworkSegmentHandlers
             [SegHandle(MessageType.ESTABLISH_CONNECTION)]
