@@ -23,7 +23,7 @@ public static class FlowControl {
     public delegate void FlowHandler();
 
     static FlowControl() {
-        var meths = typeof(FlowControl).GetMethods().Where(meth => Attribute.IsDefined(meth, typeof(FlowHandler)));
+        var meths = typeof(FlowControl).GetMethods().Where(meth => Attribute.IsDefined(meth, typeof(FlowHandlerType)));
         foreach (System.Reflection.MethodInfo method in meths)
         {
             FlowHandlerType handler = method.GetCustomAttributes(typeof(FlowHandlerType), true).First() as FlowHandlerType;
