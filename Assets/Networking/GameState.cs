@@ -11,7 +11,6 @@ public enum GameRole {
     NONE
 }
 
-[PacketStruct(MessageType.CONNECTION_INFO)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public unsafe struct Player {
     public GameRole role;

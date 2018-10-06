@@ -28,11 +28,13 @@ namespace BarbaricCode {
 
             static PacketUtils() {
                 // this is making the assumption that all assemblies we need are already loaded.
+				Debug.Log("init packets");
                 foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     foreach (Type type in assembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PacketStruct))))
                     {
                         PacketStruct handler = type.GetCustomAttributes(typeof(PacketStruct), true).First() as PacketStruct;
+						Debug.Log(handler.type.ToString());
                         MessageToStructSize.Add(handler.type, Marshal.SizeOf(type));
                     }
                 }
