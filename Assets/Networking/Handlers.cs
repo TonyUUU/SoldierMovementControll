@@ -9,7 +9,8 @@ namespace BarbaricCode
 {
     namespace Networking
     {
-        // tells the netengine to iterate through this class to grab handlers
+        // tells the netengine to iterate through this class to grab handlers. possibly unneded
+        // @TODO
         [HandlerClass]
         public static partial class Handlers
         {
@@ -33,16 +34,29 @@ namespace BarbaricCode
             // User space custom handlers
             [NetEngineHandler(NetEngineEvent.NewConnection)]
             public static void OnPlayerConnected(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
-                // enable the ui
-                // do other things
-                // asdf
+                MainMenuContextController.instance.RemoveMask();
+                MenuContextController.instance.SwitchToNetworkLobby();
+            }
 
-                // rq spawn command
-                // how to do loading/unloading of levels?
+            [NetEngineHandler(NetEngineEvent.ConnectionFailed)]
+            public static void OnConnectionFailed(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+                MenuContextController.instance.CreateAlert("ConnectionFailed", MainMenuContextController.instance.gameObject);
+                MainMenuContextController.instance.RemoveMask();
+                NetEngine.CloseSocket();
+            }
 
+            [NetEngineHandler(NetEngineEvent.Hosted)]
+            public static void OnHosted(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+                MenuContextController.instance.SwitchToNetworkLobby();
+            }
 
+            [NetEngineHandler(NetEngineEvent.HostDisconnect)]
+            public static void OnHostDisconnect(int nodeid, int connectionID, byte[] buffer, int recieveSize)
+            {
+                // if i was the host and i disconnected normally should not show anything.
 
             }
+
         }
     }
 }

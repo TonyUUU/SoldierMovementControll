@@ -23,6 +23,10 @@ namespace BarbaricCode {
         public enum NetEngineEvent
         {
             NewConnection,
+            ConnectionFailed,
+            Hosted,
+            HostFailed,
+            HostDisconnect,
         }
 
         public class NetHandle : Attribute
@@ -46,7 +50,8 @@ namespace BarbaricCode {
             public static void HandleConnect(int connectionID, byte[] buffer, int recievedSize) {
                 string address; int port; UnityEngine.Networking.Types.NetworkID network; UnityEngine.Networking.Types.NodeID NodeID; byte error; 
                 NetworkTransport.GetConnectionInfo(NetEngine.SocketID, connectionID, out address, out port, out network, out NodeID, out error);
-                Debug.Log("Recieving connection" + NetEngine.SocketID + "|" + connectionID + "|" + address + ":" + port);
+                Debug.Log("Recieving connection " + NetEngine.SocketID + "|" + connectionID + "|" + address + ":" + port);
+
                 if (NetEngine.Connections.ContainsKey(connectionID)) {
                     Debug.LogWarning("Already has connection: " + connectionID);
                     return;
@@ -129,11 +134,7 @@ namespace BarbaricCode {
                     Debug.Log("Set NodeID To: " + NetEngine.NodeId);
                     // @FLAG SET
                     NetEngine.State = EngineState.CONNECTED;
-
-                    foreach (NetEngine.SegmentHandler handler in NetEngine.netEngineEvtHandlers[NetEngineEvent.NewConnection]) {
-                        handler.Invoke(nodeID, connectionID, buffer, recieveSize);
-                    }
-
+                    NetEngine.NotifyListeners(NetEngineEvent.NewConnection, nodeID, connectionID, buffer, recieveSize);
                 }
                 else {
                     if (NetEngine.NodeId != 0)

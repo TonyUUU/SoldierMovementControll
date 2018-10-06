@@ -71,6 +71,22 @@ namespace BarbaricCode
                     SegmentHandler segHandler = (SegmentHandler)Delegate.CreateDelegate(typeof(SegmentHandler), method);
                     segmentHandlers.Add(handler.type, segHandler);
                 }
+                meths = typeof(Handlers).GetMethods().Where(meth => Attribute.IsDefined(meth, typeof(NetEngineHandler)));
+                foreach (System.Reflection.MethodInfo method in meths)
+                {
+                    NetEngineHandler handler = method.GetCustomAttributes(typeof(NetEngineHandler), true).First() as NetEngineHandler;
+                    SegmentHandler segHandler = (SegmentHandler)Delegate.CreateDelegate(typeof(SegmentHandler), method);
+                    if (netEngineEvtHandlers.ContainsKey(handler.type))
+                    {
+                        netEngineEvtHandlers[handler.type].Add(segHandler);
+                    }
+                    else {
+                        netEngineEvtHandlers[handler.type] = new List<SegmentHandler>();
+                        netEngineEvtHandlers[handler.type].Add(segHandler);
+                    }
+                }
+                // Need to handle more meths here
+
             }
 
             private static void InitConfig() {
@@ -154,16 +170,30 @@ namespace BarbaricCode
             public static void StartServer(int port) {
                 if (SocketOpen) {
                     Debug.LogWarning("Socket Already Open please close socket first " + SocketID);
+                    NotifyListeners(NetEngineEvent.HostFailed);
                     return;
                 }
                 StartSocket(port);
                 if (SocketID == -1) {
                     Debug.LogError("Failed To Start Server");
+                    NotifyListeners(NetEngineEvent.HostFailed);
                     return;
                 }
                 State = EngineState.CONNECTED;
                 NodeId = 0;
                 IsServer = true;
+                Debug.Log("Opened a socket as host on " + port);
+                NotifyListeners(NetEngineEvent.Hosted);
+            }
+            public static void CloseSocket()
+            {
+                if (!SocketOpen) {
+                    return;
+                }
+                IsServer = false;
+                NetworkTransport.RemoveHost(SocketID);
+                SocketOpen = false;
+                NotifyListeners(NetEngineEvent.HostDisconnect);
             }
             public static void Disconnect(int connectionID) {
                 
@@ -179,10 +209,15 @@ namespace BarbaricCode
             }
             public static void Connect(string ipv4, int port) {
                 if (!SocketOpen) {
+                    NetEngine.NotifyListeners(NetEngineEvent.ConnectionFailed);
                     Debug.LogWarning("Socket not open");
                 }
                 byte error;
                 NetworkTransport.Connect(SocketID, ipv4, port, 0, out error);
+                if ((NetworkError)(error) != NetworkError.Ok) {
+                    Debug.LogWarning(((NetworkError)(error)).ToString());
+                    NetEngine.NotifyListeners(NetEngineEvent.ConnectionFailed);
+                }
             }
             public static void Spawn(int id)
             {
@@ -231,6 +266,18 @@ namespace BarbaricCode
                     return;
                 }
                 Connections[connection].QSendUDP(data, size);
+            }
+            public static void NotifyListeners(NetEngineEvent evt, int nodeID, int connectionID, byte[] buffer, int recievedSize) {
+                if (!netEngineEvtHandlers.ContainsKey(evt)) {
+                    return;
+                }
+
+                foreach (SegmentHandler handle in netEngineEvtHandlers[evt]) {
+                    handle.Invoke(nodeID, connectionID, buffer, recievedSize);
+                }
+            }
+            public static void NotifyListeners(NetEngineEvent evt) {
+                NotifyListeners(evt, 0, 0, null, 0);
             }
 
         }

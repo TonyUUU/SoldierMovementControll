@@ -85,7 +85,7 @@ namespace BarbaricCode {
             STATE_DATA,
             SPAWN,
             DESPAWN,
-
+            CONNECTION_INFO,
             // state
             SIMPLE_STATE,
             SOLDIER_STATE,

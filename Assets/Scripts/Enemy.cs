@@ -74,5 +74,4 @@ public class Enemy : MonoBehaviour
 			navMeshAgent.isStopped = false;
 		}
 	}
-
 }

@@ -4,6 +4,13 @@ using UnityEngine;
 using BarbaricCode.Networking;
 using System.Runtime.InteropServices;
 
+[PacketStruct(MessageType.CONNECTION_INFO)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public unsafe struct ConnectionInfo {
+    public SegmentHeader seghead;
+    public Player player;
+}
+
 [PacketStruct(MessageType.SOLDIER_STATE)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SoldierState {

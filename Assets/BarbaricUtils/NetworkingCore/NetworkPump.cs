@@ -9,11 +9,13 @@ public class NetworkPump : MonoBehaviour {
 
     private void Start()
     {
+        DontDestroyOnLoad(gameObject);
         int count = 0;
         foreach (GameObject go in SpawnablePrefabs) {
             NetEngine.SpawnablePrefabs.Add(count, go);
         }
     }
+
     void FixedUpdate () {
         NetEngine.Step();
 	}

@@ -42,7 +42,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     }
 
     private void SpawnExplosion() {
-        GameObject exp = Instantiate(explosionprefab, transform.position, Quaternion.identity);
+       Instantiate(explosionprefab, transform.position, Quaternion.identity);
     }
 
     private void OnDestroy()
