@@ -204,6 +204,11 @@ namespace BarbaricCode {
                 }
             }
 
+			[SegHandle(MessageType.FLOW_CONTROL)]
+			public static void HandleFlow(int nodeID, int connectionID, byte[] buffer, int recieveSize){
+				NetEngine.NotifyListeners (NetEngineEvent.FlowControl, nodeID, connectionID, buffer, recieveSize);
+			}
+
             // special handler
             public static void HandleState(int nodeID, int connectionID, byte[] buffer, Stream stream, int recieveSize)
             {
