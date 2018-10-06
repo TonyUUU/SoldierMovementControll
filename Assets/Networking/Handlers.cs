@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // the partial handler lets you define parts of a class separately
 // we use this here to separate core NetEngine functions
@@ -85,8 +86,15 @@ namespace BarbaricCode
 			}
 
 			[NetEngineHandler(NetEngineEvent.FlowControl)]
-			public static void FlowControl(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
-				
+			public static void HandleFlowMessage(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
+				FlowMessage fm = NetworkSerializer.ByteArrayToStructure<FlowMessage>(buffer);
+                flow nextflow= (flow) fm.Message;
+                if (nodeid == 0) {
+                    // server issued the message
+                    GameState.currentFlowStatus = nextflow;
+                    FlowControl.FlowHandlerMapping[nextflow].Invoke();
+                }
+
 			}
         }
     }

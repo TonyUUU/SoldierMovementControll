@@ -26,4 +26,19 @@ public static class NetInterface {
         NetEngine.BroadcastUDP(NetworkSerializer.GetBytes<HIT>(hit), PacketUtils.MessageToStructSize[MessageType.GOT_HIT]);
     }
 
+    public static void SendFlowMessage(flow type) {
+        Debug.Log("flow type, " + type);
+        if (!NetEngine.IsServer) {
+            return;
+        }
+        SegmentHeader seghead;
+        seghead.type = MessageType.FLOW_CONTROL;
+        FlowMessage fm;
+        fm.SegHead = seghead;
+        fm.Message = (int) type;
+
+        NetEngine.BroadcastTCP(NetworkSerializer.GetBytes<FlowMessage>(fm), PacketUtils.MessageToStructSize[MessageType.FLOW_CONTROL]);
+    }
+    
+
 }

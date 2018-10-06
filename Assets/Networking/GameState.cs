@@ -20,4 +20,5 @@ public unsafe struct Player {
 
 public static class GameState {
     public static Dictionary<int, Player> players = new Dictionary<int, Player>();
+    public static flow currentFlowStatus = flow.IDLE;
 }

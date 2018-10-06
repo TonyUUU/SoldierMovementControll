@@ -22,6 +22,8 @@ public class LobbyMenuContextController : MonoBehaviour {
     public void PlayClicked() {
 		if (NetEngine.IsServer) {
 			// send play message
+			FlowControl.FlowHandlerMapping[flow.PLAY].Invoke();
+			NetInterface.SendFlowMessage(flow.PLAY);
 		}
     }
 }
