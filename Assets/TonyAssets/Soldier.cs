@@ -8,8 +8,7 @@ using BarbaricCode.Networking;
 // The class now extents StateSychronizableMonobehaviour which extends MonoBehaviour
 public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
 
-    public Object_status status;
-    
+    public int hp = 100;
     // we can probably move this out of the class
     public GameObject explosionprefab;
     // We cache the reference to rigidbody for better performance
@@ -18,18 +17,17 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
 	void Start () {
         // get the rigidbody reference
         rb = GetComponent<Rigidbody>();
-        status = new Object_status(this.gameObject, 100);
 	}
 	
 	public void getHit(int damage){
 
-		status.healthPoint -= damage;
-		if (status.healthPoint < 0) {
-			status.healthPoint = 0;
+        hp -= damage;
+		if (hp < 0) {
+			hp = 0;
             OnDie();
 		}
 
-		Debug.Log(string.Format("Soldier Got a shot! MEDIC!. Damage Value {0}, Current HP{1}", damage, status.healthPoint));
+		Debug.Log(string.Format("Soldier Got a shot! MEDIC!. Damage Value {0}, Current HP{1}", damage, hp));
 	}
 
     private void OnDie() {
@@ -59,8 +57,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
 
         if (LocalAuthority) { return; }
         SoldierState ss = NetworkSerializer.ByteArrayToStructure<SoldierState>(state);
-        status.healthPoint = ss.health;
-        status.position = ss.pos;
+        this.hp = ss.health;
         rb.velocity = ss.vel;
         transform.rotation = ss.rot;
         if ((transform.position - ss.pos).magnitude > NetEngineConfig.POSITION_EPSILON) {
@@ -82,7 +79,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         // This header tells the engine what the id is, timestep and type of state
         sdm.StateType = MessageType.SOLDIER_STATE;  // It's a soldier state!
         SoldierState ss;
-        ss.health = status.healthPoint;
+        ss.health = hp;
         ss.pos = transform.position;
         ss.rot = transform.rotation;
         ss.vel = rb.velocity;
@@ -116,9 +113,12 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     public void Move(float x, float z) {
         if (!LocalAuthority) {
             return;
-        }
+        }        
+        rb.velocity = new Vector3(x, rb.velocity.y, z);
+    }
 
-        rb.velocity = new Vector3(x, 0, z);
-
+    public override void Init()
+    {
+        Start();
     }
 }

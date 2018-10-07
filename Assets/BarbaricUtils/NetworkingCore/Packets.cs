@@ -63,6 +63,7 @@ namespace BarbaricCode {
         }
 
         // inherited? struct
+        [PacketStruct(MessageType.STATE_DATA)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct StateDataMessage {
             public SegmentHeader SegHead;

@@ -88,12 +88,11 @@ namespace BarbaricCode
 			[NetEngineHandler(NetEngineEvent.FlowControl)]
 			public static void HandleFlowMessage(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
 				FlowMessage fm = NetworkSerializer.ByteArrayToStructure<FlowMessage>(buffer);
-                flow nextflow= (flow) fm.Message;
+                flow nextflow = (flow) fm.Message;
                 
                 // server issued the message
                 GameState.currentFlowStatus = nextflow;
-                FlowControl.FlowHandlerMapping[nextflow].Invoke();
-
+                FlowControl.FlowHandlerMapping[nextflow].Invoke(nodeid);
 			}
         }
     }

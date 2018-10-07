@@ -22,7 +22,7 @@ public class LobbyMenuContextController : MonoBehaviour {
     public void PlayClicked() {
 		if (NetEngine.IsServer) {
 			// send play message
-			FlowControl.FlowHandlerMapping[flow.PLAY].Invoke();
+			FlowControl.FlowHandlerMapping[flow.PLAY].Invoke(0);
 			NetInterface.SendFlowMessage(flow.PLAY);
 		}
     }

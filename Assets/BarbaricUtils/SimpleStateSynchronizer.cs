@@ -22,6 +22,12 @@ public class SimpleStateSynchronizer : StateSynchronizableMonoBehaviour
         size = PacketUtils.MessageToStructSize[MessageType.SIMPLE_STATE];
         return NetworkSerializer.GetBytes<SimpleState>(ss);
     }
+
+    public override void Init()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override void Synchronize(byte[] state)
     {
 

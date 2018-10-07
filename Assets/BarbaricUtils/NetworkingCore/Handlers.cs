@@ -103,11 +103,13 @@ namespace BarbaricCode {
                     // more layer of indirection
                     if (seghead.type == MessageType.STATE_DATA) {
                         HandleState(mshead.nodeSource, connectionID, readbuff, stream, size);
+                        continue;
                     }
                     else if (!NetEngine.segmentHandlers.ContainsKey(seghead.type)) {
                         Debug.LogError("Unhandled Segment Type " + seghead.type.ToString());
                         continue;
-                    }   
+                    }
+
                     NetEngine.segmentHandlers[seghead.type].Invoke(mshead.nodeSource, connectionID, readbuff, size);
                 }
                 // do stuff
@@ -195,6 +197,10 @@ namespace BarbaricCode {
                     ssmb.AuthNodeID = sm.AuthorityID;
                     ssmb.NetID = sm.NetID;
                     ssmb.PrefabID = sm.PrefabID;
+
+                    // init to prevent state synch source vars from being undefined
+                    ssmb.Init();
+
                     if (NetEngine.NodeId == sm.AuthorityID)
                     {
                         NetEngine.LocalAuthorityObjects.Add(ssmb.NetID, ssmb);
@@ -225,7 +231,7 @@ namespace BarbaricCode {
                     Debug.LogWarning("Network object does not exist");
                     return;
                 }
-                NetEngine.NetworkObjects[sdm.NetID].Synchronize(buffer);
+                NetEngine.NetworkObjects[sdm.NetID].Synchronize(readbuf);
             }
         }
     }

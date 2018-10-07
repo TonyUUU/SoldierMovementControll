@@ -38,28 +38,39 @@ public static class FlowControl {
     [FlowHandlerType(flow.PLAY)]
 	public static void play_flow_handler(int node_id) {
         Debug.Log("loading play scene");
-		SceneManager.sceneLoaded += OnLoadNotice;
-        // SceneManager.LoadScene("PlayScene");
-
+        SceneManager.LoadScene("PlayScene");
     }
 
-	private static void OnLoadNotice(Scene scene, LoadSceneMode mode) {
-		if (scene.name == "PlayScene") {
-			NetInterface.SendFlowMessage (flow.LOAD_FINISH);
-		}
-	}
+    [FlowHandlerType(flow.LOAD_FINISH)]
+    public static void FinishLoadHandler(int node_id)
+    {
+        if (!NetEngine.IsServer) {
+            return;
+        }
 
-	public static void FinishLoadHandler(int node_id) {
-		Debug.Log("Finish loading");
-		if (!GameState.loadedNodes.Contains (node_id)) {
-			GameState.loadedNodes.Add (node_id);
-		}
+        Debug.Log("Finish loading");
+        if (!GameState.loadedNodes.Contains(node_id) && node_id != 0)
+        {
+            GameState.loadedNodes.Add(node_id);
+        }
 
-		foreach (Connection c in NetEngine.Connections.Values) {
-			if (!GameState.loadedNodes.Contains(c.nodeID)) {
-				return;
-			}
-		}
-		Debug.Log ("Start Play");
-	}
+        foreach (Connection c in NetEngine.Connections.Values)
+        {
+            if (!GameState.loadedNodes.Contains(c.nodeID))
+            {
+                return;
+            }
+        }
+
+        Debug.Log("Start Play");
+        // spawn person for player
+        // should run on server.
+        foreach (Connection c in NetEngine.Connections.Values)
+        {
+            Debug.Log("Spawning for " + c.nodeID);
+            NetEngine.Spawn(0, c.nodeID);
+        }
+        // spawn for server
+        NetEngine.Spawn(0, 0);
+    }
 }

@@ -235,12 +235,12 @@ namespace BarbaricCode
                     NetEngine.NotifyListeners(NetEngineEvent.ConnectionFailed);
                 }
             }
-            public static void Spawn(int id)
+            public static void Spawn(int id, int authorityID)
             {
                 SegmentHeader sg;
                 sg.type = MessageType.SPAWN;
                 SpawnMessage sm;
-                sm.AuthorityID = NetEngine.NodeId;
+                sm.AuthorityID = authorityID;
                 sm.NetID = -1;
                 sm.Position = Vector3.zero;
                 sm.Rotation = Quaternion.identity;

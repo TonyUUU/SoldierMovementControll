@@ -16,6 +16,7 @@ namespace BarbaricCode
             public int AuthNodeID;
             public abstract void Synchronize(byte[] state);
             public abstract byte[] GetState(out int size);
+            public abstract void Init();
         }
 
         public class Connection {

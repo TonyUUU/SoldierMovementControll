@@ -28,9 +28,6 @@ public static class NetInterface {
 
     public static void SendFlowMessage(flow type) {
         Debug.Log("flow type, " + type);
-        if (!NetEngine.IsServer) {
-            return;
-        }
         SegmentHeader seghead;
         seghead.type = MessageType.FLOW_CONTROL;
         FlowMessage fm;

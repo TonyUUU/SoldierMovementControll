@@ -8,3 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RScenes/MainMenu.unity
     guid: 7ad62b2d5ff760c4dbdd71cda32b3cc9
+  - enabled: 1
+    path: Assets/Scenes/RScenes/PlayScene.unity
+    guid: f5cf75cd2aa3ed5419f37a64351476fc
