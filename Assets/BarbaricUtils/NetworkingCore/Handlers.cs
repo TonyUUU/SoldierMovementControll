@@ -66,7 +66,7 @@ namespace BarbaricCode {
                     return;
                 }
 
-                Connection conn = new Connection(connectionID, NetEngine.SocketID, port, address);
+				Connection conn = new Connection(connectionID, NetEngine.SocketID, NetEngine.NextNodeID, port, address);
                 NetEngine.Connections.Add(connectionID, conn);
                 SegmentHeader seghead;
                 seghead.type = MessageType.ESTABLISH_CONNECTION;
@@ -151,7 +151,8 @@ namespace BarbaricCode {
                     // @FLAG SET
                     NetEngine.State = EngineState.CONNECTED;
                     NetEngine.NotifyListeners(NetEngineEvent.NewConnection, nodeID, connectionID, buffer, recieveSize);
-                }
+					NetEngine.Connections [connectionID].nodeID = 0; // Client set node id to 0 since host
+				}
                 else {
                     if (NetEngine.NodeId != 0)
                     {

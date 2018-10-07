@@ -21,7 +21,8 @@ namespace BarbaricCode
         public class Connection {
             public int connectionID;
             public int hostID;
-            public int port;
+			public int nodeID;
+			public int port;
             public string ipv4;
             public MemoryStream UDPmemstream;
             public MemoryStream TCPmemstream;
@@ -33,11 +34,12 @@ namespace BarbaricCode
 
             public List<StateSynchronizableMonoBehaviour> LocalAuthMonos;
 
-            public Connection(int connectionID, int hostID, int port, string ipv4) {
+			public Connection(int connectionID, int hostID, int nodeID, int port, string ipv4) {
                 this.connectionID = connectionID;
                 this.hostID = hostID;
                 this.port = port;
                 this.ipv4 = ipv4;
+				this.nodeID = nodeID;
                 UDPmemstream = new MemoryStream();
                 UDPcutoffs = new List<long>();
                 TCPmemstream = new MemoryStream();
