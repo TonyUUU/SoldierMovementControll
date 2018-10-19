@@ -140,8 +140,8 @@ namespace BarbaricCode
         }
 
         public static class NetEngineConfig {
-            public static float POSITION_EPSILON = 0.5f;
-            public static float INTERP_COEFF = 5.0f;
+            public static float POSITION_EPSILON = 1f;
+            public static float INTERP_COEFF = 10.0f;
         }
     }
 }

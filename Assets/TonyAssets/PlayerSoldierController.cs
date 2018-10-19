@@ -22,6 +22,8 @@ public class PlayerSoldierController : MonoBehaviour {
         }
 
         soldier.CameraPoint.AddComponent<PlayerCameraController>();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -73,9 +75,10 @@ public class PlayerSoldierController : MonoBehaviour {
             soldier.FireUp();
         }
 
-        float dh = Input.GetAxis("Mouse Y");
+        float dy = Input.GetAxis("Mouse Y");
         float dx = Input.GetAxis("Mouse X");
-        Quaternion rot = transform.rotation * Quaternion.Euler(0, dx, 0);
-        soldier.Rotate(rot);
+        Quaternion bodrot = transform.rotation * Quaternion.Euler(0, dx, 0);
+        Quaternion headrot = soldier.HeadJoint.transform.localRotation * Quaternion.Euler(-dy, 0, 0);
+        soldier.Rotate(bodrot, headrot);
     }
 }

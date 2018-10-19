@@ -21,11 +21,12 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     // We cache the reference to rigidbody for better performance
     private Rigidbody rb;
 
-    public GameObject CameraPoint, AimPoint;
+    public GameObject CameraPoint, AimPoint, HeadJoint;
 
     private Vector3 remotePos;
     private Vector3 remoteVel;
-    private Quaternion RemoteRot;
+    private Quaternion remoteBodRot;
+    private Quaternion remoteHeadRot;
     private uint timeStamp = 0;
     
     // a bitfield that determines movement
@@ -79,8 +80,8 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         {
             // ignore remote velocity for now, captured by input state
             // sync pos, rot
-            transform.rotation = Quaternion.Slerp(transform.rotation, RemoteRot, Time.fixedDeltaTime * NetEngineConfig.INTERP_COEFF);
-
+            transform.rotation = Quaternion.Slerp(transform.rotation, remoteBodRot, Time.fixedDeltaTime * NetEngineConfig.INTERP_COEFF);
+            HeadJoint.transform.rotation = Quaternion.Slerp(HeadJoint.transform.rotation, remoteHeadRot, Time.fixedDeltaTime * NetEngineConfig.INTERP_COEFF);
             if ((transform.position - remotePos).magnitude >= NetEngineConfig.POSITION_EPSILON)
             {
                 transform.position = remotePos;
@@ -93,7 +94,6 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     }
 
 	public void getHit(int damage){
-
         hp -= damage;
 		if (hp < 0) {
 			hp = 0;
@@ -123,7 +123,8 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         if (ss.statehead.TimeStep > timeStamp) {
             this.hp = ss.health;
             this.remotePos = ss.pos;
-            this.RemoteRot = ss.rot;
+            this.remoteBodRot = ss.bodrot;
+            this.remoteHeadRot = ss.headrot;
             this.inputState = ss.inputState;
             this.remoteVel = ss.vel;
         }
@@ -145,7 +146,8 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         SoldierState ss;
         ss.health = hp;
         ss.pos = transform.position;
-        ss.rot = transform.rotation;
+        ss.bodrot = transform.rotation;
+        ss.headrot = HeadJoint.transform.rotation;
         ss.vel = rb.velocity;
         ss.inputState = inputState;
 
@@ -205,9 +207,8 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
             if (hit.collider.tag == "Damageable" || hit.collider.tag == "Player")
             {
                 Debug.Log("Hit the target!");
-                Soldier s = hit.collider.gameObject.GetComponent<Soldier>();
-                // hardcoded damage for now
-                NetInterface.Fire(s.NetID, 34);
+                Damageable d = hit.collider.gameObject.GetComponent<Damageable>();
+                d.getHit(34);
             }
         }
         else
@@ -216,8 +217,22 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         }
     }
 
-    public void Rotate(Quaternion rot) {
-        transform.rotation = rot;
+    public void Rotate(Quaternion bodrot, Quaternion headrot) {
+        transform.rotation = bodrot;
+        HeadJoint.transform.localRotation = headrot;
+        Transform t = HeadJoint.transform;
+        float xrot = t.localRotation.eulerAngles.x;
+
+        if (xrot > 360 - 90)
+        {
+            xrot = Mathf.Max(xrot, 360 - 80);
+            xrot = Mathf.Min(xrot, 360);
+        }
+        else {
+            xrot = Mathf.Min(xrot, 80);
+        }
+
+        t.localRotation = Quaternion.Euler(new Vector3(xrot, 0, 0));
     }
 
     public override void OnDespawn()

@@ -17,7 +17,8 @@ public struct SoldierState {
     public StateDataMessage statehead;
     public Vector3 pos;
     public Vector3 vel;
-    public Quaternion rot;
+    public Quaternion headrot;
+    public Quaternion bodrot;
     public Soldier.SoldierControlState inputState;
     public int health;
 }
