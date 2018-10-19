@@ -11,6 +11,7 @@ public enum flow {
     PLAY,
     FINISH,
 	LOAD_FINISH,
+    PLAYER_DIED
 }
 
 
@@ -56,6 +57,7 @@ public static class FlowControl {
 
         foreach (Connection c in NetEngine.Connections.Values)
         {
+            Debug.Log("Connection " + c.nodeID);
             if (!GameState.loadedNodes.Contains(c.nodeID))
             {
                 return;
@@ -72,5 +74,16 @@ public static class FlowControl {
         }
         // spawn for server
         NetEngine.Spawn(0, 0);
+    }
+
+    [FlowHandlerType(flow.PLAYER_DIED)]
+    public static void PLAYER_DIED(int node_id) {
+        if (!NetEngine.IsServer) {
+            return;
+        }
+
+        // respawn player for that node
+        NetEngine.Spawn(0, node_id);
+
     }
 }

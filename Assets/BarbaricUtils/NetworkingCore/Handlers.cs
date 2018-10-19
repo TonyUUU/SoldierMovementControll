@@ -211,6 +211,52 @@ namespace BarbaricCode {
                 }
             }
 
+            [SegHandle(MessageType.DESPAWN)]
+            public static void Despawn(int nodeID, int connectionID, byte[] buffer, int recieveSize) {
+                DespawnMessage dm = NetworkSerializer.ByteArrayToStructure<DespawnMessage>(buffer);
+                // from server, then okay to trust
+                if (nodeID == 0) {
+                    StateSynchronizableMonoBehaviour ssmb = null;
+                    if (NetEngine.NetworkObjects.ContainsKey(dm.netid))
+                    {
+                        ssmb = NetEngine.NetworkObjects[dm.netid];
+                        NetEngine.NetworkObjects.Remove(dm.netid);
+                    }
+                    if (NetEngine.LocalAuthorityObjects.ContainsKey(dm.netid))
+                    {
+                        ssmb = NetEngine.LocalAuthorityObjects[dm.netid];
+                        NetEngine.LocalAuthorityObjects.Remove(dm.netid);
+                    }
+                    if (ssmb != null)
+                    {
+                        ssmb.OnDespawn();
+                        GameObject.Destroy(ssmb.gameObject);
+                    }
+                }
+                if (NetEngine.IsServer) {
+                    foreach (Connection con in NetEngine.Connections.Values) {
+                        con.QSendTCP(buffer, PacketUtils.MessageToStructSize[MessageType.DESPAWN]);
+                    }
+                    // local despawn handler
+                    StateSynchronizableMonoBehaviour ssmb = null;
+                    if (NetEngine.NetworkObjects.ContainsKey(dm.netid))
+                    {
+                        ssmb = NetEngine.NetworkObjects[dm.netid];
+                        NetEngine.NetworkObjects.Remove(dm.netid);
+                    }
+                    if (NetEngine.LocalAuthorityObjects.ContainsKey(dm.netid))
+                    {
+                        ssmb = NetEngine.LocalAuthorityObjects[dm.netid];
+                        NetEngine.LocalAuthorityObjects.Remove(dm.netid);
+                    }
+                    if (ssmb != null)
+                    {
+                        ssmb.OnDespawn();
+                        GameObject.Destroy(ssmb.gameObject);
+                    }
+                }
+            }
+
 			[SegHandle(MessageType.FLOW_CONTROL)]
 			public static void HandleFlow(int nodeID, int connectionID, byte[] buffer, int recieveSize){
 				NetEngine.NotifyListeners (NetEngineEvent.FlowControl, nodeID, connectionID, buffer, recieveSize);

@@ -18,6 +18,7 @@ public struct SoldierState {
     public Vector3 pos;
     public Vector3 vel;
     public Quaternion rot;
+    public Soldier.SoldierControlState inputState;
     public int health;
 }
 

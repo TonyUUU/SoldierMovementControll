@@ -28,7 +28,13 @@ namespace BarbaricCode
             public static void Hit(int nodeID, int connectionID, byte[] buffer, int recieveSize)
             {
                 HIT hit = NetworkSerializer.ByteArrayToStructure<HIT>(buffer);
-                NetEngine.NetworkObjects[hit.NetID].gameObject.GetComponent<Damageable>().getHit(hit.Damage);
+                if (NetEngine.NetworkObjects.ContainsKey(hit.NetID))
+                {
+                    NetEngine.NetworkObjects[hit.NetID].gameObject.GetComponent<Damageable>().getHit(hit.Damage);
+                }
+                else {
+                    Debug.LogWarning("ID does not exist " + hit.NetID);
+                }
             }
 
             // Network Handlers

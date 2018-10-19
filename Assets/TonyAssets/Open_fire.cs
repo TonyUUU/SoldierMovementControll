@@ -24,19 +24,7 @@ public class Open_fire : MonoBehaviour {
 
         Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * firingRange, Color.red, 0.001f);
         if (Input.GetMouseButtonDown(0) == true) {
-            Debug.Log("Fire!");
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitedObj, firingRange))
-            {
-				if (hitedObj.collider.tag == "Damageable" || hitedObj.collider.tag == "Player" )
-                {
-					Debug.Log("Hit the target!");
-                    Soldier s = hitedObj.collider.gameObject.GetComponent<Soldier>();
-                    NetInterface.Fire(s.NetID, damage);
-                }
-            }
-            else {
-                Debug.Log("Missing target!");
-            }
+
         }
 
 	}

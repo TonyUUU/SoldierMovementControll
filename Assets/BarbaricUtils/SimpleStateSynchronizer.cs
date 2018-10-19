@@ -28,6 +28,11 @@ public class SimpleStateSynchronizer : StateSynchronizableMonoBehaviour
         throw new System.NotImplementedException();
     }
 
+    public override void OnDespawn()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override void Synchronize(byte[] state)
     {
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using BarbaricCode.Networking;
 
 [RequireComponent(typeof(Soldier))]
 public class PlayerSoldierController : MonoBehaviour {
@@ -17,7 +18,10 @@ public class PlayerSoldierController : MonoBehaviour {
         // i.e. it's the controller for another player
         if (!soldier.LocalAuthority) {
             Destroy(this);
+            return;
         }
+
+        soldier.CameraPoint.AddComponent<PlayerCameraController>();
     }
 
     // Update is called once per frame
@@ -27,9 +31,31 @@ public class PlayerSoldierController : MonoBehaviour {
         // @TODO
         float z_change = Input.GetAxis("Vertical") * speed;
         float x_change = Input.GetAxis("Horizontal") * speed;
+        Soldier.SoldierControlState scs;
+        int state = 0;
 
-        soldier.Move(x_change, z_change);
-        
+        if (Input.GetKey(KeyCode.W)) {
+            state = state | 1;
+        }
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            state = state | (1 << 2);
+        }
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            state = state | 2;
+        }
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            state = state | (2 << 2);
+        }
+
+        scs.MoveState = state;
+        soldier.SetInputState(scs);
+
         // there's probably a better way to do this
         if (Input.GetKeyDown("f")) {
 			Instantiate(misslePrefab, new Vector3(transform.position.x, transform.position.y + 100, transform.position.z), Quaternion.identity);
@@ -38,5 +64,18 @@ public class PlayerSoldierController : MonoBehaviour {
         if (Input.GetKeyDown("escape")) {
             Cursor.lockState = CursorLockMode.None;
         }
+
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            soldier.FireDown();
+        }
+        else {
+            soldier.FireUp();
+        }
+
+        float dh = Input.GetAxis("Mouse Y");
+        float dx = Input.GetAxis("Mouse X");
+        Quaternion rot = transform.rotation * Quaternion.Euler(0, dx, 0);
+        soldier.Rotate(rot);
     }
 }

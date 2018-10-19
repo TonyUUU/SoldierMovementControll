@@ -11,6 +11,36 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1658361554317440}
   m_IsPrefabParent: 1
+--- !u!1 &1303655691457084
+GameObject:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4320242710018118}
+  m_Layer: 0
+  m_Name: AimPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1374237477100684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4868338749371736}
+  m_Layer: 0
+  m_Name: CameraPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1658361554317440
 GameObject:
   m_ObjectHideFlags: 0
@@ -24,15 +54,27 @@ GameObject:
   - component: {fileID: 23187509234454350}
   - component: {fileID: 54865154114609248}
   - component: {fileID: 114961944735068056}
-  - component: {fileID: 114816342322835838}
-  - component: {fileID: 114898175035120304}
+  - component: {fileID: 114728456008289938}
   m_Layer: 0
-  m_Name: DummySoldier
-  m_TagString: Untagged
+  m_Name: PlayerSoldier
+  m_TagString: Damageable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!4 &4320242710018118
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1303655691457084}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.522}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4868338749371736}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4747918307422706
 Transform:
   m_ObjectHideFlags: 1
@@ -40,10 +82,25 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1658361554317440}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.46842098, y: -1.9728205, z: 1.0478361}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 4868338749371736}
   m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4868338749371736
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1374237477100684}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.621, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4320242710018118}
+  m_Father: {fileID: 4747918307422706}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &23187509234454350
@@ -96,26 +153,13 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 999
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &114816342322835838
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1658361554317440}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a6d8161b0d994a4d82ab8d67c1e3636, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  firingRange: 10000
-  damage: 10
---- !u!114 &114898175035120304
+--- !u!114 &114728456008289938
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -128,7 +172,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   misslePrefab: {fileID: 0}
-  soldier: {fileID: 114961944735068056}
+  soldier: {fileID: 0}
 --- !u!114 &114961944735068056
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -144,7 +188,11 @@ MonoBehaviour:
   PrefabID: 0
   NetID: 0
   AuthNodeID: 0
+  speed: 10
+  hp: 100
   explosionprefab: {fileID: 0}
+  CameraPoint: {fileID: 1374237477100684}
+  AimPoint: {fileID: 1303655691457084}
 --- !u!136 &136820998447897152
 CapsuleCollider:
   m_ObjectHideFlags: 1

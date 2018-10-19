@@ -34,7 +34,7 @@ namespace BarbaricCode {
                     foreach (Type type in assembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PacketStruct))))
                     {
                         PacketStruct handler = type.GetCustomAttributes(typeof(PacketStruct), true).First() as PacketStruct;
-						Debug.Log(handler.type.ToString());
+						// Debug.Log(handler.type.ToString());
                         MessageToStructSize.Add(handler.type, Marshal.SizeOf(type));
                     }
                 }
@@ -81,6 +81,13 @@ namespace BarbaricCode {
             public int AuthorityID;
             public Vector3 Position;
             public Quaternion Rotation; // find a way to marry this with state
+        }
+
+        [PacketStruct(MessageType.DESPAWN)]
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct DespawnMessage {
+            public SegmentHeader SegHead;
+            public int netid;
         }
 
 		[PacketStruct(MessageType.FLOW_CONTROL)]

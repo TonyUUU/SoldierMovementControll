@@ -257,6 +257,40 @@ namespace BarbaricCode
                     }
                 }
             }
+            
+            // If client, ping server for despawn request
+            // Server will despawn on their side and send an
+            // Authoritative despawn back. Client will then despawn
+            // If Server, despawn for self and send to all clients.
+            public static void Despawn(int id) {
+                SegmentHeader sg;
+                sg.type = MessageType.DESPAWN;
+                DespawnMessage dm;
+                dm.netid = id;
+                dm.SegHead = sg;
+
+                foreach (Connection c in Connections.Values) {
+                    c.QSendTCP(NetworkSerializer.GetBytes<DespawnMessage>(dm), PacketUtils.MessageToStructSize[MessageType.DESPAWN]);
+                }
+
+                // handle local
+                if (IsServer) {
+                    StateSynchronizableMonoBehaviour ssmb = null;
+                    if (NetworkObjects.ContainsKey(id)) {
+                        ssmb = NetworkObjects[id];
+                        NetworkObjects.Remove(id);
+                    }
+                    if (LocalAuthorityObjects.ContainsKey(id)) {
+                        ssmb = LocalAuthorityObjects[id];
+                        LocalAuthorityObjects.Remove(id);
+                    }
+                    if (ssmb == null) {
+                        return;
+                    }
+                    ssmb.OnDespawn();
+                    GameObject.Destroy(ssmb.gameObject);
+                }
+            }
 
             public static void BroadcastTCP(byte[] data, int size) {
                 foreach (Connection conn in Connections.Values) {

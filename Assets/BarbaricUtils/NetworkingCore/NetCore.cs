@@ -17,6 +17,7 @@ namespace BarbaricCode
             public abstract void Synchronize(byte[] state);
             public abstract byte[] GetState(out int size);
             public abstract void Init();
+            public abstract void OnDespawn();
         }
 
         public class Connection {
@@ -140,6 +141,7 @@ namespace BarbaricCode
 
         public static class NetEngineConfig {
             public static float POSITION_EPSILON = 0.5f;
+            public static float INTERP_COEFF = 5.0f;
         }
     }
 }
