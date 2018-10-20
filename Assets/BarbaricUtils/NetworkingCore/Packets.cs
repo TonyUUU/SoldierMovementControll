@@ -106,6 +106,7 @@ namespace BarbaricCode {
             // state
             SIMPLE_STATE,
             SOLDIER_STATE,
+            GENERAL_STATE,
 			// Flow control
 			FLOW_CONTROL,
             // message

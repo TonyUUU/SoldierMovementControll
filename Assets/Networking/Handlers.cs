@@ -43,6 +43,11 @@ namespace BarbaricCode
             public static void OnPlayerConnected(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
                 MainMenuContextController.instance.RemoveMask();
                 MenuContextController.instance.SwitchToNetworkLobby();
+                Player p = new Player();
+                p.loaded = false;
+                p.nodeID = nodeid;
+                p.role = GameRole.SOLDIER;
+                GameState.players.Add(nodeid, p);
             }
 
             [NetEngineHandler(NetEngineEvent.ConnectionFailed)]
@@ -55,13 +60,17 @@ namespace BarbaricCode
             [NetEngineHandler(NetEngineEvent.Hosted)]
             public static void OnHosted(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
                 MenuContextController.instance.SwitchToNetworkLobby();
+                Player p = new Player();
+                p.loaded = false;
+                p.nodeID = 0;
+                p.role = GameRole.SOLDIER;
+                GameState.players.Add(0, p);
             }
 
             [NetEngineHandler(NetEngineEvent.HostDisconnect)]
             public static void OnHostDisconnect(int nodeid, int connectionID, byte[] buffer, int recieveSize)
             {
                 // if i was the host and i disconnected normally should not show anything.
-
             }
 
 			[NetEngineHandler(NetEngineEvent.Timeout)]

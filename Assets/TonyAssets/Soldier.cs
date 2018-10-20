@@ -27,7 +27,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     private Vector3 remoteVel;
     private Quaternion remoteBodRot;
     private Quaternion remoteHeadRot;
-    private uint timeStamp = 0;
+    private int timeStamp = 0;
     
     // a bitfield that determines movement
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -127,6 +127,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
             this.remoteHeadRot = ss.headrot;
             this.inputState = ss.inputState;
             this.remoteVel = ss.vel;
+            this.timeStamp = ss.statehead.TimeStep;
         }
     }
 

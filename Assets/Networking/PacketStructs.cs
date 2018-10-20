@@ -23,7 +23,13 @@ public struct SoldierState {
     public int health;
 }
 
-
+[PacketStruct(MessageType.GENERAL_STATE)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct GeneralState {
+    public StateDataMessage statehead;
+    public Vector3 pos;
+    public Quaternion bodrot;
+}
 [PacketStruct(MessageType.GOT_HIT)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct HIT {

@@ -882,7 +882,18 @@ MonoBehaviour:
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 835576879}
+        m_MethodName: OnRoleChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Dropdown+DropdownEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &392281123
@@ -1966,6 +1977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayButton: {fileID: 616869238}
   sceneName: 
+  dropdown: {fileID: 392281122}
 --- !u!1 &843269351
 GameObject:
   m_ObjectHideFlags: 0
@@ -3507,6 +3519,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnablePrefabs:
   - {fileID: 1658361554317440, guid: 7345476ea92d85c47bd76dd3009ea261, type: 2}
+  - {fileID: 1379211740116782, guid: 87c93243e1c3b8f44b3eb712a568f19b, type: 2}
 --- !u!1 &1707026490
 GameObject:
   m_ObjectHideFlags: 0

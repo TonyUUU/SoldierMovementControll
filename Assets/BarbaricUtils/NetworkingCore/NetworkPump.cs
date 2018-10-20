@@ -13,6 +13,7 @@ public class NetworkPump : MonoBehaviour {
         int count = 0;
         foreach (GameObject go in SpawnablePrefabs) {
             NetEngine.SpawnablePrefabs.Add(count, go);
+            count++;
         }
     }
 

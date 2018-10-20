@@ -11,7 +11,9 @@ public enum flow {
     PLAY,
     FINISH,
 	LOAD_FINISH,
-    PLAYER_DIED
+    PLAYER_DIED,
+    ROLE_CHANGE_SOLDIER,
+    ROLE_CHANGE_GENERAL,
 }
 
 
@@ -53,6 +55,7 @@ public static class FlowControl {
         if (!GameState.loadedNodes.Contains(node_id) && node_id != 0)
         {
             GameState.loadedNodes.Add(node_id);
+            GameState.players[node_id].loaded = true;
         }
 
         foreach (Connection c in NetEngine.Connections.Values)
@@ -70,10 +73,23 @@ public static class FlowControl {
         foreach (Connection c in NetEngine.Connections.Values)
         {
             Debug.Log("Spawning for " + c.nodeID);
-            NetEngine.Spawn(0, c.nodeID);
+            if (GameState.players[c.nodeID].role == GameRole.GENERAL)
+            {
+                NetEngine.Spawn(1, c.nodeID);
+            }
+            else {
+                NetEngine.Spawn(0, c.nodeID);
+            }
+            
         }
         // spawn for server
-        NetEngine.Spawn(0, 0);
+        if (GameState.players[0].role == GameRole.GENERAL)
+        {
+            NetEngine.Spawn(1, 0);
+        }
+        else {
+            NetEngine.Spawn(0, 0);
+        }
     }
 
     [FlowHandlerType(flow.PLAYER_DIED)]
@@ -85,5 +101,21 @@ public static class FlowControl {
         // respawn player for that node
         NetEngine.Spawn(0, node_id);
 
+    }
+
+    [FlowHandlerType(flow.ROLE_CHANGE_GENERAL)]
+    public static void RoleChangeGeneralHandler(int nodeid) {
+        if (!NetEngine.IsServer) {
+            return;
+        }
+        GameState.players[nodeid].role = GameRole.GENERAL;
+    }
+
+    [FlowHandlerType(flow.ROLE_CHANGE_SOLDIER)]
+    public static void RoleChangeSoldierHandler(int nodeid) {
+        if (!NetEngine.IsServer) {
+            return;
+        }
+        GameState.players[nodeid].role = GameRole.SOLDIER;
     }
 }

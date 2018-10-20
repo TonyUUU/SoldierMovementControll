@@ -11,13 +11,14 @@ public enum GameRole {
     NONE
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public unsafe struct Player {
+public class Player {
     public GameRole role;
-    public fixed char name[32];
+    // public fixed char name[32];
     public int nodeID; // doubles as a player id
+    public bool loaded;
 }
 
+// put this in a state synchronizable mono? :o
 public static class GameState {
     public static Dictionary<int, Player> players = new Dictionary<int, Player>();
     public static flow currentFlowStatus = flow.IDLE;

@@ -75,6 +75,9 @@ namespace BarbaricCode {
                 estab.newID = NetEngine.NextNodeID;
                 NetEngine.NextNodeID++;
                 conn.QSendTCP(NetworkSerializer.GetBytes<EstablishConnectionMessage>(estab), PacketUtils.MessageToStructSize[seghead.type]);
+                if (NetEngine.IsServer) {
+                    NetEngine.NotifyListeners(NetEngineEvent.NewConnection, estab.newID, connectionID, buffer, recievedSize);
+                }
             }
 
             [NetHandle(NetworkEventType.DataEvent)]
