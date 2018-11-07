@@ -8,7 +8,6 @@ using UnityEngine;
 namespace BarbaricCode {
     namespace Networking {
 
-        [PacketStruct(MessageType.SIMPLE_STATE)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct SimpleState
         {

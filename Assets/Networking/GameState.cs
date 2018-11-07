@@ -21,6 +21,5 @@ public class Player {
 // put this in a state synchronizable mono? :o
 public static class GameState {
     public static Dictionary<int, Player> players = new Dictionary<int, Player>();
-    public static flow currentFlowStatus = flow.IDLE;
 	public static List<int> loadedNodes = new List<int> ();
 }

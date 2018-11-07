@@ -16,12 +16,17 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     public float speed = 5;
     // hp
     public int hp = 100;
+
+    public float jumpStrength = 5;
+
     // we can probably move this out of the class
     public GameObject explosionprefab;
     // We cache the reference to rigidbody for better performance
     private Rigidbody rb;
 
     public GameObject CameraPoint, AimPoint, HeadJoint;
+
+    public MovementModelBase MovementModel;
 
     private Vector3 remotePos;
     private Vector3 remoteVel;
@@ -36,7 +41,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         //          ||fwd/back 00/11 - none, 01 - up, 10 - down
         //          vvvv
         // ....0000 0000
-        public int MoveState; 
+        public uint MoveState; 
     }
 
     private SoldierControlState inputState;
@@ -47,33 +52,35 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
 	}
 
     void FixedUpdate() {
+        // gonna scrap this and replace with a movement model.
         // parse local input
-        Vector3 vel = Vector3.zero;
-        if ((inputState.MoveState & ForwardBackMask) == 1)
-        {
-            vel.z = 1;
-        }
-        else if ((inputState.MoveState & ForwardBackMask) == 2)
-        {
-            vel.z = -1;
-        }
+        // Vector3 vel = Vector3.zero;
+        //if ((inputState.MoveState & ForwardBackMask) == 1)
+        //{
+        //    vel.z = 1;
+        //}
+        //else if ((inputState.MoveState & ForwardBackMask) == 2)
+        //{
+        //    vel.z = -1;
+        //}
 
-        if (((inputState.MoveState & LeftRightMask) >> 2) == 1)
-        {
-            vel.x = -1;
-        }
-        else if (((inputState.MoveState & LeftRightMask) >> 2) == 2)
-        {
-            vel.x = 1;
-        }
+        //if (((inputState.MoveState & LeftRightMask) >> 2) == 1)
+        //{
+        //    vel.x = -1;
+        //}
+        //else if (((inputState.MoveState & LeftRightMask) >> 2) == 2)
+        //{
+        //    vel.x = 1;
+        //}
+        //if ((inputState.MoveState & FireMask) >> 4 == 1) {
+        //    Fire();
+        //}
 
-        if ((inputState.MoveState & FireMask) >> 4 == 1) {
-            Fire();
-        }
+        //vel *= speed;
+        //vel = transform.rotation * vel;
+        //rb.velocity = new Vector3(vel.x, rb.velocity.y, vel.z);
 
-        vel *= speed;
-        vel = transform.rotation * vel;
-        rb.velocity = new Vector3(vel.x, rb.velocity.y, vel.z);
+        MovementModel.Step(inputState.MoveState);
 
         // interpolate if not local auth
         if (!LocalAuthority)
@@ -115,19 +122,19 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     // The important network methods are here
 
     // Called when the state is recieved
-    public override void Synchronize(byte[] state)
+    public override void Synchronize(byte[] state, int stamp)
     {
 
         if (LocalAuthority) { return; }
-        SoldierState ss = NetworkSerializer.ByteArrayToStructure<SoldierState>(state);
-        if (ss.statehead.TimeStep > timeStamp) {
+        SoldierState ss = NetworkSerializer.GetStruct<SoldierState>(state);
+        if (stamp> timeStamp) {
             this.hp = ss.health;
             this.remotePos = ss.pos;
             this.remoteBodRot = ss.bodrot;
             this.remoteHeadRot = ss.headrot;
             this.inputState = ss.inputState;
             this.remoteVel = ss.vel;
-            this.timeStamp = ss.statehead.TimeStep;
+            this.timeStamp = stamp;
         }
     }
 
@@ -143,7 +150,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         sdm.TimeStep = NetEngine.SimStep;
         sdm.SegHead = seghead;
         // This header tells the engine what the id is, timestep and type of state
-        sdm.StateType = MessageType.SOLDIER_STATE;  // It's a soldier state!
+        sdm.StateSize = 0; // size of the state
         SoldierState ss;
         ss.health = hp;
         ss.pos = transform.position;
@@ -151,27 +158,12 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         ss.headrot = HeadJoint.transform.rotation;
         ss.vel = rb.velocity;
         ss.inputState = inputState;
-
-        // The soldierstate packet must contain a seghead.
-        ss.statehead = sdm;
-        // The Soldierstate now looks like this
-        //  Soldier_State : {[SegmentHeader]|[{StateHeader}|{SoldierInformation}]}
-        // The net engine will read the segment header first, and from there can
-        // Determine what kind of data is in the next segment
-        // It will then read the StateHeader and determine what kind of
-        // State it is synchronizing
-        //  Before Reading Seghead : {[SegmentHeader]|[????]}
-        //  After Reading Seghead : {[SegmentHeader]|[{StateHeader}|{???}]}
-        // After Reading StateHead : {[SegmentHeader]|[{StateHeader}|{SoldierInfo}]}
-        // There are some other processes involved but this is the high level idea
-
-        // we also return as an out variable the sizeof the struct
-        // using the message type and we can use the MessageToStructSize dictionary
-        // To get the size in bytes of the SoldierState struct
-        // The MessageToStructSize dictionary is initialized at runtime using
-        // reflection
-        size = PacketUtils.MessageToStructSize[MessageType.SOLDIER_STATE];
-        return NetworkSerializer.GetBytes<SoldierState>(ss);
+        byte[] b2 = NetworkSerializer.GetBytes<SoldierState>(ss);
+        sdm.StateSize = b2.Length;
+        byte[] b1 = NetworkSerializer.GetBytes<StateDataMessage>(sdm);
+        byte[] b3 = NetworkSerializer.Combine(b1, b2);
+        size = b3.Length;
+        return b3;
         // That should be all. The state will get sent over the network now.
     }
 
@@ -189,6 +181,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     public override void Init()
     {
         Start();
+        MovementModel.Init();
     }
 
     public void FireDown() {
@@ -196,7 +189,7 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
     }
 
     public void FireUp() {
-        inputState.MoveState = inputState.MoveState & ~(1 << 4);
+        inputState.MoveState =  inputState.MoveState & ~((uint)1 << 4);
     }
 
     private void Fire() {
@@ -236,6 +229,14 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
         t.localRotation = Quaternion.Euler(new Vector3(xrot, 0, 0));
     }
 
+    public void Jump() {
+        // raycast downward
+        if (true) {
+            rb.velocity = new Vector3(rb.velocity.x, jumpStrength, rb.velocity.z);
+        }
+
+    }
+
     public override void OnDespawn()
     {
         // there is some problem with asynchronous calling here.
@@ -253,11 +254,11 @@ public class Soldier : StateSynchronizableMonoBehaviour, Damageable {
 
         if (NetEngine.IsServer)
         {
-            FlowControl.FlowHandlerMapping[flow.PLAYER_DIED].Invoke(0);
+            NetEngine.userHandlers[(int)FlowMessageType.PLAYER_DIED].Invoke(0,-1,null,0);
         }
         else
         {
-            NetInterface.SendFlowMessage(flow.PLAYER_DIED);
+            NetInterface.BroadCastFlowMessage(FlowMessageType.PLAYER_DIED, null, true);
         }
 
     }

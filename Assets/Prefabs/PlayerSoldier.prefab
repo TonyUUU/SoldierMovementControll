@@ -173,7 +173,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1658361554317440}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.61092556, y: -2.0714445, z: 0.87862444}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4689848659628432}
@@ -284,13 +284,13 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1658361554317440}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 9000
   m_Drag: 0
   m_AngularDrag: 999
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &114187617784622698
 MonoBehaviour:
@@ -349,10 +349,12 @@ MonoBehaviour:
   AuthNodeID: 0
   speed: 10
   hp: 100
+  jumpStrength: 5
   explosionprefab: {fileID: 0}
   CameraPoint: {fileID: 1374237477100684}
   AimPoint: {fileID: 1303655691457084}
   HeadJoint: {fileID: 1882751289318690}
+  MovementModel: {fileID: 0}
 --- !u!136 &136318697521012758
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -372,7 +374,7 @@ CapsuleCollider:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1296108613682776}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: df48ececca0d72546821b88727240994, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5

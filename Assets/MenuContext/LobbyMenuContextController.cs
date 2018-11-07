@@ -23,8 +23,8 @@ public class LobbyMenuContextController : MonoBehaviour {
     public void PlayClicked() {
 		if (NetEngine.IsServer) {
 			// send play message
-			FlowControl.FlowHandlerMapping[flow.PLAY].Invoke(0);
-			NetInterface.SendFlowMessage(flow.PLAY);
+			NetEngine.userHandlers[(int)FlowMessageType.PLAY].Invoke(0, 0, null, 0);
+			NetInterface.BroadCastFlowMessage(FlowMessageType.PLAY);
 		}
     }
 
@@ -32,10 +32,10 @@ public class LobbyMenuContextController : MonoBehaviour {
         if (!NetEngine.IsServer) {
             switch (dropdown.value) {
                 case 0:
-                    NetInterface.SendFlowMessage(flow.ROLE_CHANGE_SOLDIER);
+                    NetInterface.BroadCastFlowMessage(FlowMessageType.ROLE_CHANGE_SOLDIER);
                     break;
                 case 1:
-                    NetInterface.SendFlowMessage(flow.ROLE_CHANGE_GENERAL);
+                    NetInterface.BroadCastFlowMessage(FlowMessageType.ROLE_CHANGE_GENERAL);
                     break;
             }
         } else {

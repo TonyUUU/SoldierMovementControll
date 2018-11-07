@@ -9,8 +9,8 @@ public class SceneLoaded : MonoBehaviour {
     {
         if (NetEngine.IsServer)
         {
-            FlowControl.FinishLoadHandler(0);
+            NetEngine.userHandlers[(int)FlowMessageType.LOAD_FINISH].Invoke(0, -1, null, 0);
         }
-        NetInterface.SendFlowMessage(flow.LOAD_FINISH);
+        NetInterface.BroadCastFlowMessage(FlowMessageType.LOAD_FINISH, null, true);
     }
 }

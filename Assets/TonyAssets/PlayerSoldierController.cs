@@ -34,7 +34,7 @@ public class PlayerSoldierController : MonoBehaviour {
         float z_change = Input.GetAxis("Vertical") * speed;
         float x_change = Input.GetAxis("Horizontal") * speed;
         Soldier.SoldierControlState scs;
-        int state = 0;
+        uint state = 0;
 
         if (Input.GetKey(KeyCode.W)) {
             state = state | 1;
@@ -53,6 +53,11 @@ public class PlayerSoldierController : MonoBehaviour {
         if (Input.GetKey(KeyCode.D))
         {
             state = state | (2 << 2);
+        }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            state = state | (1 << 5);
         }
 
         scs.MoveState = state;
@@ -74,6 +79,8 @@ public class PlayerSoldierController : MonoBehaviour {
         else {
             soldier.FireUp();
         }
+
+
 
         float dy = Input.GetAxis("Mouse Y");
         float dx = Input.GetAxis("Mouse X");

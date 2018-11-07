@@ -13,7 +13,7 @@ namespace BarbaricCode
         // tells the netengine to iterate through this class to grab handlers. possibly unneded
         // @TODO
         [HandlerClass]
-        public static partial class Handlers
+        public static partial class Handlers // soon to be deprecated into UserHandlers!
         {
 
             // Segment Handlers
@@ -27,7 +27,7 @@ namespace BarbaricCode
             [SegHandle(MessageType.GOT_HIT)]
             public static void Hit(int nodeID, int connectionID, byte[] buffer, int recieveSize)
             {
-                HIT hit = NetworkSerializer.ByteArrayToStructure<HIT>(buffer);
+                HIT hit = NetworkSerializer.GetStruct<HIT>(buffer);
                 if (NetEngine.NetworkObjects.ContainsKey(hit.NetID))
                 {
                     NetEngine.NetworkObjects[hit.NetID].gameObject.GetComponent<Damageable>().getHit(hit.Damage);
@@ -98,16 +98,6 @@ namespace BarbaricCode
 					MainMenuContextController.instance.RemoveMask();
 					MenuContextController.instance.CreateAlert ("Failed to connect: Timeout", MainMenuContextController.instance.gameObject);
 				}
-			}
-
-			[NetEngineHandler(NetEngineEvent.FlowControl)]
-			public static void HandleFlowMessage(int nodeid, int connectionID, byte[] buffer, int recieveSize) {
-				FlowMessage fm = NetworkSerializer.ByteArrayToStructure<FlowMessage>(buffer);
-                flow nextflow = (flow) fm.Message;
-                
-                // server issued the message
-                GameState.currentFlowStatus = nextflow;
-                FlowControl.FlowHandlerMapping[nextflow].Invoke(nodeid);
 			}
         }
     }

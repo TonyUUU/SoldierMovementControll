@@ -46,13 +46,17 @@ public class General : StateSynchronizableMonoBehaviour {
         sdm.TimeStep = NetEngine.SimStep;
         sdm.SegHead = seghead;
         // This header tells the engine what the id is, timestep and type of state
-        sdm.StateType = MessageType.GENERAL_STATE;  // It's a soldier state!. @TODO move this outside to a new struct
+        sdm.StateSize = 0;
         GeneralState ss;
         ss.pos = transform.position;
         ss.bodrot = transform.rotation;
-        ss.statehead = sdm;
-        size = PacketUtils.MessageToStructSize[MessageType.GENERAL_STATE]; // problem here <--- maybe have a diff util method for state data?
-        return NetworkSerializer.GetBytes<GeneralState>(ss);
+        byte[] b1, b2, b3;
+        b2 = NetworkSerializer.GetBytes<GeneralState>(ss);
+        sdm.StateSize = b2.Length;
+        b1 = NetworkSerializer.GetBytes<StateDataMessage>(sdm);
+        b3 = NetworkSerializer.Combine(b1, b2);
+        size = b3.Length;
+        return b3;
     }
 
     public override void Init()
@@ -64,14 +68,14 @@ public class General : StateSynchronizableMonoBehaviour {
         throw new System.NotImplementedException();
     }
 
-    public override void Synchronize(byte[] state)
+    public override void Synchronize(byte[] state, int stamp)
     {
         if (LocalAuthority) { return; }
-        SoldierState ss = NetworkSerializer.ByteArrayToStructure<SoldierState>(state);
-        if (ss.statehead.TimeStep > timeStamp)
+        SoldierState ss = NetworkSerializer.GetStruct<SoldierState>(state);
+        if (stamp > timeStamp)
         {
             this.remotePos = ss.pos;
-            this.timeStamp = ss.statehead.TimeStep;
+            this.timeStamp = stamp;
         }
     }
 

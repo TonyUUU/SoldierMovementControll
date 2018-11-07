@@ -14,7 +14,7 @@ namespace BarbaricCode
             public int PrefabID;
             public int NetID;
             public int AuthNodeID;
-            public abstract void Synchronize(byte[] state);
+            public abstract void Synchronize(byte[] state, int stamp);
             public abstract byte[] GetState(out int size);
             public abstract void Init();
             public abstract void OnDespawn();

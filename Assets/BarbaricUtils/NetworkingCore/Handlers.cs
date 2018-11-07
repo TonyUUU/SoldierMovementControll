@@ -91,24 +91,30 @@ namespace BarbaricCode {
                 MemoryStream stream = new MemoryStream(buffer);
                 stream.Seek(0, 0);
                 stream.Read(readbuff, 0, PacketUtils.MESSAGE_HEADER);
-                MessageHeader mshead = NetworkSerializer.ByteArrayToStructure<MessageHeader>(readbuff);
+                MessageHeader mshead = NetworkSerializer.GetStruct<MessageHeader>(readbuff);
 
                 // Debug.Log("Recieved message from " + mshead.nodeSource + " " + mshead.size);
 
                 while (stream.Position < mshead.size) {
                     stream.Read(readbuff, 0, PacketUtils.SEGMENT_HEADER);
-                    SegmentHeader seghead = NetworkSerializer.ByteArrayToStructure<SegmentHeader>(readbuff);
+                    SegmentHeader seghead = NetworkSerializer.GetStruct<SegmentHeader>(readbuff);
                     int size = PacketUtils.MessageToStructSize[seghead.type];
                     stream.Seek(-PacketUtils.SEGMENT_HEADER, SeekOrigin.Current);
                     stream.Read(readbuff, 0, size);
 
                     // special case for state_data. requires one
                     // more layer of indirection
-                    if (seghead.type == MessageType.STATE_DATA) {
+                    if (seghead.type == MessageType.STATE_DATA)
+                    {
                         HandleState(mshead.nodeSource, connectionID, readbuff, stream, size);
                         continue;
                     }
-                    else if (!NetEngine.segmentHandlers.ContainsKey(seghead.type)) {
+                    else if (seghead.type == MessageType.USER_DATA) {
+                        HandleUserData(mshead.nodeSource, connectionID, readbuff, stream, size);
+                        continue;
+                    }
+                    else if (!NetEngine.segmentHandlers.ContainsKey(seghead.type))
+                    {
                         Debug.LogError("Unhandled Segment Type " + seghead.type.ToString());
                         continue;
                     }
@@ -141,7 +147,7 @@ namespace BarbaricCode {
             [SegHandle(MessageType.ESTABLISH_CONNECTION)]
             public static void EstablishConnection(int nodeID, int connectionID, byte[] buffer, int recieveSize)
             {
-                EstablishConnectionMessage ec = NetworkSerializer.ByteArrayToStructure<EstablishConnectionMessage>(buffer);
+                EstablishConnectionMessage ec = NetworkSerializer.GetStruct<EstablishConnectionMessage>(buffer);
                 if (nodeID == 0)
                 {
                     if (NetEngine.NodeId == 0)
@@ -157,6 +163,23 @@ namespace BarbaricCode {
                     NetEngine.State = EngineState.CONNECTED;
                     NetEngine.NotifyListeners(NetEngineEvent.NewConnection, nodeID, connectionID, buffer, recieveSize);
 					NetEngine.Connections [connectionID].nodeID = 0; // Client set node id to 0 since host
+
+                    // @TODO REMOVE DEBUG HELLO WORLD
+                    SegmentHeader seghead;
+                    seghead.type = MessageType.USER_DATA;
+                    UserDataHeader udh;
+                    udh.MessageId = (int)UserHandlers.NetEngineUserDataTypes.HELLO_WORLD;
+                    udh.MessageSize = 0;
+                    udh.SegHead = seghead;
+                    HelloWorldPacket hwp;
+                    hwp.secret = 42;
+
+                    byte[] b2 = NetworkSerializer.GetBytes<HelloWorldPacket>(hwp);
+                    udh.MessageSize = b2.Length;
+                    byte[] b1 = NetworkSerializer.GetBytes<UserDataHeader>(udh);
+                    byte[] b3 = NetworkSerializer.Combine(b1, b2);
+                    NetEngine.SendTCP(b3, b3.Length, connectionID);
+
 				}
                 else {
                     if (NetEngine.NodeId != 0)
@@ -170,7 +193,7 @@ namespace BarbaricCode {
 
             [SegHandle(MessageType.SPAWN)]
             public static void Spawn(int nodeID, int connectionID, byte[] buffer, int recieveSize) {
-                SpawnMessage sm = NetworkSerializer.ByteArrayToStructure<SpawnMessage>(buffer);
+                SpawnMessage sm = NetworkSerializer.GetStruct<SpawnMessage>(buffer);
                 if (NetEngine.IsServer)
                 {
 
@@ -216,7 +239,7 @@ namespace BarbaricCode {
 
             [SegHandle(MessageType.DESPAWN)]
             public static void Despawn(int nodeID, int connectionID, byte[] buffer, int recieveSize) {
-                DespawnMessage dm = NetworkSerializer.ByteArrayToStructure<DespawnMessage>(buffer);
+                DespawnMessage dm = NetworkSerializer.GetStruct<DespawnMessage>(buffer);
                 // from server, then okay to trust
                 if (nodeID == 0) {
                     StateSynchronizableMonoBehaviour ssmb = null;
@@ -265,22 +288,32 @@ namespace BarbaricCode {
 				NetEngine.NotifyListeners (NetEngineEvent.FlowControl, nodeID, connectionID, buffer, recieveSize);
 			}
 
-            // special handler
+            // special handlers
             public static void HandleState(int nodeID, int connectionID, byte[] buffer, Stream stream, int recieveSize)
             {
-                StateDataMessage sdm = NetworkSerializer.ByteArrayToStructure<StateDataMessage>(buffer);
+                StateDataMessage sdm = NetworkSerializer.GetStruct<StateDataMessage>(buffer);
                 byte[] readbuf = new byte[NetworkMessage.MaxMessageSize];
-                
-                //rewind a bit
-                stream.Seek(-recieveSize, SeekOrigin.Current);
-                stream.Read(readbuf, 0, PacketUtils.MessageToStructSize[sdm.StateType]);
+                stream.Read(readbuf, 0, sdm.StateSize);
 
                 if (!NetEngine.NetworkObjects.ContainsKey(sdm.NetID))
                 {
                     Debug.LogWarning("Network object does not exist");
                     return;
                 }
-                NetEngine.NetworkObjects[sdm.NetID].Synchronize(readbuf);
+                NetEngine.NetworkObjects[sdm.NetID].Synchronize(readbuf, sdm.TimeStep);
+            }
+
+            public static void HandleUserData(int nodeID, int connectionID, byte[] buffer, Stream stream, int recieveSize)
+            {
+                
+                UserDataHeader udh = NetworkSerializer.GetStruct<UserDataHeader>(buffer);
+                byte[] readbuf = new byte[NetworkMessage.MaxMessageSize];
+                stream.Read(readbuf, 0, udh.MessageSize);
+                if (!NetEngine.userHandlers.ContainsKey(udh.MessageId)) {
+                    Debug.LogError("No user defined Handler for user data message id: " + udh.MessageId);
+                    return;
+                }
+                NetEngine.userHandlers[udh.MessageId].Invoke(nodeID, connectionID, readbuf, udh.MessageSize);
             }
         }
     }

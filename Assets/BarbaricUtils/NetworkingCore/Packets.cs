@@ -69,7 +69,7 @@ namespace BarbaricCode {
             public SegmentHeader SegHead;
             public int NetID;
             public int TimeStep;
-            public MessageType StateType;
+            public int StateSize;
         }
 
         [PacketStruct(MessageType.SPAWN)]
@@ -97,16 +97,22 @@ namespace BarbaricCode {
 			public int Message;
 		}
 
+        [PacketStruct(MessageType.USER_DATA)]
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct UserDataHeader {
+            public SegmentHeader SegHead;
+            public int MessageSize;
+            public int MessageId; // define your own structs and overload this field for identification!
+        }
+
         public enum MessageType {
             ESTABLISH_CONNECTION,
             STATE_DATA,
             SPAWN,
             DESPAWN,
             CONNECTION_INFO,
-            // state
-            SIMPLE_STATE,
-            SOLDIER_STATE,
-            GENERAL_STATE,
+            // custom data from here on.
+            USER_DATA,
 			// Flow control
 			FLOW_CONTROL,
             // message

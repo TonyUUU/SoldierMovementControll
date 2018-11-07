@@ -22,6 +22,7 @@ namespace BarbaricCode
 
             public delegate void NetworkEventHandler(int connectionID, byte[] buffer, int recievedSize);
             public delegate void SegmentHandler(int nodeID, int connectionID, byte[] buffer, int recievedSize);
+            public delegate void CustomUserHandler(int nodeID, int connectionID, byte[] buffer, int recievedSize);
 
             public static ConnectionConfig cconfig;
             public static HostTopology topology;
@@ -47,6 +48,7 @@ namespace BarbaricCode
             public static Dictionary<MessageType, SegmentHandler> segmentHandlers = new Dictionary<MessageType, SegmentHandler>();
             public static Dictionary<NetEngineEvent, List<SegmentHandler>> netEngineEvtHandlers = new Dictionary<NetEngineEvent, List<SegmentHandler>>();
 			public static Dictionary<NetworkError, NetworkEventHandler> errorHandlers = new Dictionary<NetworkError, NetworkEventHandler> ();
+            public static Dictionary<int, CustomUserHandler> userHandlers = new Dictionary<int, CustomUserHandler>();
 
             public static Dictionary<int, GameObject> SpawnablePrefabs = new Dictionary<int, GameObject>();
 
@@ -93,6 +95,13 @@ namespace BarbaricCode
 					NetworkEventHandler nethandle = (NetworkEventHandler)Delegate.CreateDelegate(typeof(NetworkEventHandler), method);
 					errorHandlers.Add(handler.type, nethandle);
 				}
+                meths = typeof(UserHandlers).GetMethods().Where(meth => Attribute.IsDefined(meth, typeof(UserDataHandler)));
+                foreach (System.Reflection.MethodInfo method in meths)
+                {
+                    UserDataHandler handler = method.GetCustomAttributes(typeof(UserDataHandler), true).First() as UserDataHandler;
+                    CustomUserHandler nethandle = (CustomUserHandler)Delegate.CreateDelegate(typeof(CustomUserHandler), method);
+                    userHandlers.Add(handler.type, nethandle);
+                }
                 // Need to handle more meths here
 
             }
@@ -329,7 +338,13 @@ namespace BarbaricCode
             public static void NotifyListeners(NetEngineEvent evt) {
                 NotifyListeners(evt, 0, 0, null, 0);
             }
-
+            
         }
     }
 }
+
+// consider changing connections key based on nodeid.
+// ahh but not all will have every node id.
+// Ok so net flow messages are generally broadcast.
+// kk
+

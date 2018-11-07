@@ -4,6 +4,23 @@ using UnityEngine;
 using BarbaricCode.Networking;
 using System.Runtime.InteropServices;
 
+// State Synch Should NOT be User Space Handled
+public enum UserMessageType : int {
+
+}
+
+public enum FlowMessageType : int {
+    // 200 - 299
+    IDLE = 200,
+    PLAY = 201,
+    FINISH = 202,
+    LOAD_FINISH = 203,
+    PLAYER_DIED = 204,
+    ROLE_CHANGE_SOLDIER = 205,
+    ROLE_CHANGE_GENERAL = 206,
+}
+
+
 [PacketStruct(MessageType.CONNECTION_INFO)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public unsafe struct ConnectionInfo {
@@ -11,25 +28,6 @@ public unsafe struct ConnectionInfo {
     public Player player;
 }
 
-[PacketStruct(MessageType.SOLDIER_STATE)]
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct SoldierState {
-    public StateDataMessage statehead;
-    public Vector3 pos;
-    public Vector3 vel;
-    public Quaternion headrot;
-    public Quaternion bodrot;
-    public Soldier.SoldierControlState inputState;
-    public int health;
-}
-
-[PacketStruct(MessageType.GENERAL_STATE)]
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct GeneralState {
-    public StateDataMessage statehead;
-    public Vector3 pos;
-    public Quaternion bodrot;
-}
 [PacketStruct(MessageType.GOT_HIT)]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct HIT {

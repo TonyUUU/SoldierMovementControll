@@ -3518,7 +3518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnablePrefabs:
-  - {fileID: 1658361554317440, guid: 7345476ea92d85c47bd76dd3009ea261, type: 2}
+  - {fileID: 1960988206466922, guid: 18bbf2552698be741be32126c283c0e7, type: 2}
   - {fileID: 1379211740116782, guid: 87c93243e1c3b8f44b3eb712a568f19b, type: 2}
 --- !u!1 &1707026490
 GameObject:

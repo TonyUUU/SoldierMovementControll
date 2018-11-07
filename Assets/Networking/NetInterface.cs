@@ -26,16 +26,49 @@ public static class NetInterface {
         NetEngine.BroadcastUDP(NetworkSerializer.GetBytes<HIT>(hit), PacketUtils.MessageToStructSize[MessageType.GOT_HIT]);
     }
 
-    public static void SendFlowMessage(flow type) {
-        Debug.Log("flow type, " + type);
+    public static void SendFlowMessage(int connectionID, FlowMessageType type, byte[] packet = null, bool TCP = false) {
+        packet = packet ?? new byte[0];
         SegmentHeader seghead;
-        seghead.type = MessageType.FLOW_CONTROL;
-        FlowMessage fm;
-        fm.SegHead = seghead;
-        fm.Message = (int) type;
+        seghead.type = MessageType.USER_DATA;
+        UserDataHeader udh;
+        udh.MessageId = (int)type;
+        udh.SegHead = seghead;
+        udh.MessageSize = packet.Length;
 
-        NetEngine.BroadcastTCP(NetworkSerializer.GetBytes<FlowMessage>(fm), PacketUtils.MessageToStructSize[MessageType.FLOW_CONTROL]);
+        byte[] b1 = NetworkSerializer.GetBytes<UserDataHeader>(udh);
+        byte[] b2 = packet;
+        byte[] b3 = NetworkSerializer.Combine(b1, b2);
+        if (TCP)
+        {
+            NetEngine.SendTCP(b3, b3.Length, connectionID);
+        }
+        else {
+            NetEngine.SendUDP(b3, b3.Length, connectionID);
+        }
+     }
+
+    public static void BroadCastFlowMessage(FlowMessageType type, byte[] packet = null, bool TCP = false) {
+        packet = packet ?? new byte[0];
+        SegmentHeader seghead;
+        seghead.type = MessageType.USER_DATA;
+        UserDataHeader udh;
+        udh.MessageId = (int)type;
+        udh.SegHead = seghead;
+        udh.MessageSize = packet.Length;
+
+        byte[] b1 = NetworkSerializer.GetBytes<UserDataHeader>(udh);
+        byte[] b2 = packet;
+        byte[] b3 = NetworkSerializer.Combine(b1, b2);
+        if (TCP)
+        {
+            NetEngine.BroadcastTCP(b3, b3.Length);
+        }
+        else
+        {
+            NetEngine.BroadcastUDP(b3, b3.Length);
+        }
     }
-    
+
+
 
 }
