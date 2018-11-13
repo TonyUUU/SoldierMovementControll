@@ -9,4 +9,5 @@ public interface WeaponBase {
     void Reload();
     int GetAmmo();
     float GetAmmoPercentage();
+	void SwapMode();
 }
