@@ -5,9 +5,10 @@ using UnityEngine;
 public interface WeaponBase {
     // generally server only implementation?
     // nah. We'll trust the client for now
-    void Fire();
+    void PrimaryFire();
     void Reload();
     int GetAmmo();
     float GetAmmoPercentage();
 	void SwapMode();
+	void SecondaryFire ();
 }

@@ -9,17 +9,20 @@ public class SimpleGun : MonoBehaviour, WeaponBase
 	private int currentAmmo = clipSize;
 	public double damagePerAmmo = 2.0;
 	public double weaponRange = 20.0;
+	public double secondaryWeaponDamage = 40.0;
+	public double missileVelocity = 20.0f; //debatable, havent tested it yet, tune it up later
+	public double missileDisappearDistance = 200.0f; //ditto
+	public double recoilFactor = 0.1f; //ditto
 	private enum fireMode {
 		SINGLE,
 		BURST
 	}
 	private fireMode curMode = fireMode.SINGLE;
 
-    void WeaponBase.Fire()
+    void WeaponBase.PrimaryFire()
     {
-		Vector3 fwd = transform.TransformDirection(Vector3.forward);
 		RaycastHit hit;
-		if (Physics.Raycast (transform.position, fwd, out hit, distance)) {
+		if (Physics.Raycast (transform.position, transform.forward + recoilFactor * transform.up, out hit, distance)) {
 			double distance = Vector3.Distance (hit.collider.transform.position, transform.position);
 			//damage fall off bases on range
 			if (distance > weaponRange && distance <= (2 * weaponRange)) {
@@ -39,6 +42,22 @@ public class SimpleGun : MonoBehaviour, WeaponBase
 		}
 
     }
+
+	void WeaponBase.SecondaryFire()
+	{
+		//unlike primaryFire, secondary attack usually can only occur once in a while
+		//we can spawn a gameobject everytime secondaryFire() triggerred, and destroy it if it hit something
+		//or if it doesnt hit anyting, after a amount of distance we destroy it
+		GameObject capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule); // using capsule to simulate a rocket missile for now
+		capsule.transform.position = transform.position;
+		CapsuleCollider cc = capsule.AddComponent<CapsuleCollider> () as CapsuleCollider;
+		cc.attachedRigidbody.useGravity = false; // maybe?
+		capsule.AddComponent(System.Type.GetType("DelegateCollision")); //dynamically add OnCollisionEnter function
+		do {
+			capsule.transform.position += capsule.transform.forward * Time.deltaTime * missileVelocity;
+		} // check if max distance reached or missile hit something 
+		while(Vector3.Distance (capsule.transform.position, transform.position) < missileDisappearDistance && capsule != null);
+	}
 
 	void WeaponBase.SwapMode()
 	{
