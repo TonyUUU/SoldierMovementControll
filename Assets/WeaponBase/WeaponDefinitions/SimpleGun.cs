@@ -6,13 +6,13 @@ using UnityEngine;
 public class SimpleGun : MonoBehaviour, WeaponBase
 {
 	public int clipSize = 20;
-	private int currentAmmo = clipSize;
+	private int currentAmmo = 20;
 	public double damagePerAmmo = 2.0;
 	public double weaponRange = 20.0;
 	public double secondaryWeaponDamage = 40.0;
 	public double missileVelocity = 20.0f; //debatable, havent tested it yet, tune it up later
 	public double missileDisappearDistance = 200.0f; //ditto
-	public double recoilFactor = 0.1f; //ditto
+	public float recoilFactor = 0.1f; //ditto
 	private enum fireMode {
 		SINGLE,
 		BURST
@@ -21,9 +21,12 @@ public class SimpleGun : MonoBehaviour, WeaponBase
 
     void WeaponBase.PrimaryFire()
     {
-		RaycastHit hit;
-		if (Physics.Raycast (transform.position, transform.forward + recoilFactor * transform.up, out hit, distance)) {
-			double distance = Vector3.Distance (hit.collider.transform.position, transform.position);
+
+        RaycastHit hit;
+        Vector3 direction = transform.forward + recoilFactor * transform.up;
+        if (Physics.Raycast (transform.position, direction, out hit, (float)(weaponRange * 3.0f))) {
+            Debug.DrawRay(transform.position, direction * (float)(weaponRange * 3.0f), Color.yellow, 0.001f);
+            double distance = Vector3.Distance (hit.collider.transform.position, transform.position);
 			//damage fall off bases on range
 			if (distance > weaponRange && distance <= (2 * weaponRange)) {
 				damagePerAmmo = 1.0;
@@ -40,6 +43,10 @@ public class SimpleGun : MonoBehaviour, WeaponBase
 					break;	
 			}
 		}
+        else
+        {
+            Debug.DrawRay(transform.position, direction * (float) (weaponRange * 3.0f), Color.white, 0.001f);
+        }
 
     }
 
@@ -54,14 +61,21 @@ public class SimpleGun : MonoBehaviour, WeaponBase
 		cc.attachedRigidbody.useGravity = false; // maybe?
 		capsule.AddComponent(System.Type.GetType("DelegateCollision")); //dynamically add OnCollisionEnter function
 		do {
-			capsule.transform.position += capsule.transform.forward * Time.deltaTime * missileVelocity;
+			capsule.transform.position += capsule.transform.forward * (float) (Time.deltaTime * missileVelocity);
 		} // check if max distance reached or missile hit something 
 		while(Vector3.Distance (capsule.transform.position, transform.position) < missileDisappearDistance && capsule != null);
 	}
 
 	void WeaponBase.SwapMode()
 	{
-		curMode = (curMode + 1) % 2;
+		if (curMode == fireMode.SINGLE)
+        {
+            curMode = fireMode.BURST;
+        }
+        else
+        {
+            curMode = fireMode.SINGLE;
+        }
 	}
 
     int WeaponBase.GetAmmo()
